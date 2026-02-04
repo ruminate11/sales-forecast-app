@@ -4,3 +4,4 @@ statsmodels
 flask
 joblib
 matplotlib
+gunicorn

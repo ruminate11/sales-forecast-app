@@ -4,103 +4,391 @@
     <title>Sales Forecasting Dashboard</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: "Manrope", sans-serif;
-            background: linear-gradient(135deg,#f6f8fb,#eef1f5);
+            transition: background-color 0.5s ease, color 0.3s ease;
+        }
+
+        body {
             height: 100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
+            background: linear-gradient(135deg,#f6f8fb,#eef1f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.5s ease;
+            position: relative;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+
+        /* Theme Toggle - Fixed to top-right corner */
+        .theme-toggle-container {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1000;
+        }
+
+        .theme-toggle {
+            width: 65px;
+            height: 32px;
+        }
+
+        .toggle-checkbox {
+            display: none;
+        }
+
+        .toggle-label {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #9333ea);
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .toggle-label:hover {
+            transform: scale(1.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        body.dark-mode .toggle-label {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .toggle-label::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #f59e0b;
+        }
+
+        .toggle-checkbox:checked + .toggle-label::after {
+            transform: translateX(33px);
+            color: #fbbf24;
+        }
+
+        .toggle-label i {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            transition: all 0.4s ease;
+        }
+
+        .sun-icon {
+            left: 10px;
+            color: #f59e0b;
+        }
+
+        .moon-icon {
+            right: 10px;
+            color: #cbd5e1;
+        }
+
+        .toggle-checkbox:checked + .toggle-label .sun-icon {
+            opacity: 0.5;
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        .toggle-checkbox:not(:checked) + .toggle-label .moon-icon {
+            opacity: 0.5;
+            transform: translateY(-50%) scale(0.9);
         }
 
         .card {
-            background:white;
-            padding:35px;
-            width:380px;
-            border-radius:16px;
-            box-shadow:0 15px 40px rgba(0,0,0,0.08);
-            text-align:center;
+            background: white;
+            padding: 35px;
+            width: 380px;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.5s ease;
+        }
+
+        body.dark-mode .card {
+            background: #1e293b;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
         }
 
         h2 {
             margin-bottom: 5px;
+            color: #1e293b;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode h2 {
+            color: #f1f5f9;
         }
 
         .forecast-box {
             font-size: 28px;
             font-weight: 700;
             margin: 15px 0;
-            color:#2563eb;
+            color: #2563eb;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .forecast-box {
+            color: #60a5fa;
         }
 
         input {
             width: 100%;
-            padding:10px;
-            margin:8px 0;
-            border-radius:8px;
-            border:1px solid #ddd;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #1e293b;
+            transition: all 0.3s ease;
         }
 
+        body.dark-mode input {
+            background: #334155;
+            border-color: #475569;
+            color: #f1f5f9;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        body.dark-mode input:focus {
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.3);
+        }
+
+        /* -------------------
+           Enhanced Gradient Glow Button
+        ------------------- */
         button {
-            width:100%;
-            padding:12px;
-            background:black;
-            color:white;
-            border:none;
-            border-radius:10px;
-            font-weight:600;
-            margin-top:10px;
-            cursor:pointer;
+            position: relative;
+            width: 100%;
+            padding: 12px;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+            z-index: 1;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        body.dark-mode button {
+            background: #0f172a;
+        }
+
+        /* Enhanced gradient glow behind the button */
+        button::before {
+            content: "";
+            position: absolute;
+            inset: -5px;
+            background: conic-gradient(
+                #2563eb,
+                #9333ea,
+                #06b6d4,
+                #4ade80,
+                #fbbf24,
+                #f87171,
+                #ec4899,
+                #8b5cf6,
+                #2563eb
+            );
+            border-radius: 15px;
+            animation: rotate 2.5s linear infinite;
+            z-index: -2;
+            filter: blur(12px);
+            opacity: 0.9;
+        }
+
+        body.dark-mode button::before {
+            filter: blur(15px);
+            opacity: 0.95;
+        }
+
+        /* inner black layer */
+        button::after {
+            content: "";
+            position: absolute;
+            inset: 3px;
+            background: #000;
+            border-radius: 7px;
+            z-index: -1;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode button::after {
+            background: #0f172a;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:hover::before {
+            filter: blur(18px);
+            opacity: 1;
+            animation-duration: 1.8s;
         }
 
         .result {
             margin-top: 15px;
-            font-weight:600;
-            color:#15803d;
+            font-weight: 600;
+            color: #15803d;
+            padding: 10px;
+            border-radius: 8px;
+            background: #e8f7ee;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .result {
+            color: #86efac;
+            background: rgba(21, 128, 61, 0.2);
         }
 
         .small {
             font-size: 12px;
-            color:#888;
+            color: #888;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .small {
+            color: #94a3b8;
         }
     </style>
 </head>
 
 <body>
 
-<div class="card">
-
-    <h2>📈 Demand Forecast</h2>
-    <div class="small">Next Month Sales Prediction</div>
-
-    <div class="forecast-box">
-        {{ forecast }} units
-    </div>
-
-    <form action="/calculate" method="post">
-
-        <input type="hidden" name="forecast" value="{{ forecast }}">
-
-        <input type="number" step="any" name="lead_time" placeholder="Lead Time (days)" required>
-
-        <input type="number" step="any" name="safety_stock" placeholder="Safety Stock (units)" required>
-
-        <button>Calculate Reorder Point</button>
-    </form>
-
-    {% if reorder_point %}
-        <div class="result">
-            Reorder Point: {{ reorder_point }} units
+    <!-- Theme Toggle Switch - Outside the card -->
+    <div class="theme-toggle-container">
+        <div class="theme-toggle">
+            <input type="checkbox" id="theme-toggle" class="toggle-checkbox">
+            <label for="theme-toggle" class="toggle-label">
+                <i class="fas fa-sun sun-icon"></i>
+                <i class="fas fa-moon moon-icon"></i>
+            </label>
         </div>
-    {% endif %}
-
-    <div class="small" style="margin-top:15px;">
-        Inventory Optimization Tool
     </div>
 
-</div>
+    <div class="card">
 
+        <h2>📈 Demand Forecast</h2>
+        <div class="small">Next Month Sales Prediction</div>
+
+        <div class="forecast-box">
+            {{ forecast }} units
+        </div>
+
+        <form action="/calculate" method="post">
+
+            <input type="hidden" name="forecast" value="{{ forecast }}">
+
+            <input type="number" step="any" name="lead_time" placeholder="Lead Time (days)" required>
+
+            <input type="number" step="any" name="safety_stock" placeholder="Safety Stock (units)" required>
+
+            <button>Calculate Reorder Point</button>
+        </form>
+
+        {% if reorder_point %}
+            <div class="result">
+                Reorder Point: {{ reorder_point }} units
+            </div>
+        {% endif %}
+
+        <div class="small" style="margin-top:15px;">
+            Inventory Optimization Tool
+        </div>
+
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const toggleLabel = document.querySelector('.toggle-label');
+        
+        // Check for saved theme or prefer-color-scheme
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            body.classList.add('dark-mode');
+            themeToggle.checked = true;
+        }
+        
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Enhanced hover effect for toggle
+        toggleLabel.addEventListener('mouseenter', () => {
+            toggleLabel.style.transform = 'scale(1.08)';
+        });
+        
+        toggleLabel.addEventListener('mouseleave', () => {
+            toggleLabel.style.transform = 'scale(1)';
+        });
+        
+        // Add click animation
+        toggleLabel.addEventListener('mousedown', () => {
+            toggleLabel.style.transform = 'scale(0.95)';
+        });
+        
+        toggleLabel.addEventListener('mouseup', () => {
+            toggleLabel.style.transform = 'scale(1.08)';
+        });
+        
+        // Add keyboard support for accessibility
+        toggleLabel.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                themeToggle.checked = !themeToggle.checked;
+                themeToggle.dispatchEvent(new Event('change'));
+            }
+        });
+        
+        // Make toggle label focusable for keyboard navigation
+        toggleLabel.setAttribute('tabindex', '0');
+    </script>
 </body>
 </html>
